@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   permission_handler: ^11.3.1
   speech_to_text: ^7.0.0
+  flutter_gemini: ^2.0.5
 
 
 dev_dependencies:

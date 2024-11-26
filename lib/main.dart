@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/speech_to_text.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,6 +11,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Gemini.init(apiKey:"API_KEY");
     return MaterialApp(
       title: 'Speech to Text',
       debugShowCheckedModeBanner: false,

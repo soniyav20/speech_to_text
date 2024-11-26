@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -11,7 +12,8 @@ class SpeechToTextPage extends StatefulWidget {
 }
 
 class _SpeechToTextPage extends State<SpeechToTextPage> {
-  final TextEditingController _textController = TextEditingController();
+  List<String> transcripts=[];
+  // final TextEditingController _textController = TextEditingController();
   final SpeechToText _speechToText = SpeechToText();
 
   bool _speechEnabled = false;
@@ -53,7 +55,7 @@ class _SpeechToTextPage extends State<SpeechToTextPage> {
   void _startListening() async {
     await _speechToText.listen(
       onResult: _onSpeechResult,
-      listenFor: const Duration(seconds: 100),
+      listenFor: const Duration(seconds: 5000),
       localeId: _selectedLocale,
       cancelOnError: false,
       partialResults: false,
@@ -67,16 +69,31 @@ class _SpeechToTextPage extends State<SpeechToTextPage> {
     setState(() {});
   }
 
+
+
+
   void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = "$_lastWords${result.recognizedWords} ";
-      _textController.text = _lastWords;
+    setState(() async {
+      _lastWords = " ${result.recognizedWords} ";
+      // transcripts.add(_lastWords);
+      print(transcripts);
+      print("THIS IS FROM THE SPEECH" + _lastWords);
+        final gemini = Gemini.instance;
+        print('Jdlfkjlsgj');
+        await gemini.text("This is a transcript from speech to text package i used, Check for context matching and add proper punctuation to the text. Return just the corrected text alone and nothing else. The text is \"${_lastWords}\"")
+            .then((value) => transcripts.add(value?.output??"")) /// or value?.content?.parts?.last.text
+            .catchError((e) => print(e));
+        setState(() {
+        });
+        print("Dgkjsgjlksdg");
+        print(transcripts);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Speech to Text"),
         centerTitle: true,
@@ -98,16 +115,31 @@ class _SpeechToTextPage extends State<SpeechToTextPage> {
                   _selectedLocale = value!;
                 });
               },
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: TextField(
-                controller: _textController,
-                minLines: 6,
-                maxLines: 10,
+              decoration: InputDecoration(
+                labelText: "Select Language",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
             const SizedBox(height: 20),
+            // Text Input and Listening Status
+            Expanded(
+              child: transcripts.length>0? ListView.builder(
+                  itemCount: transcripts.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListTile(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          selectedTileColor: Colors.deepPurple[50],
+                          selected: true,
+                          title: Text(transcripts[index])),
+                    );
+                  }): Text("Click on the Mic Button to start listening")
+            ),
+            const SizedBox(height: 20),
+            // Listening Status and Microphone Button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -121,12 +153,15 @@ class _SpeechToTextPage extends State<SpeechToTextPage> {
                   ),
                 ),
                 FloatingActionButton(
+                  // onPressed: (){ _lalaalaaa();},
                   onPressed: _speechToText.isNotListening
                       ? _startListening
                       : _stopListening,
                   tooltip: 'Listen',
+                  backgroundColor: Colors.blueAccent,
                   child: Icon(
                     _speechToText.isNotListening ? Icons.mic_off : Icons.mic,
+                    color: Colors.white,
                   ),
                 ),
               ],
