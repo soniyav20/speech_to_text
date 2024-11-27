@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Gemini.init(apiKey:"API_KEY");
+    Gemini.init(apiKey:"AIzaSyCl5IKx2wtWEAys2PdG8-8K49tjN9HZm4Q");
     return MaterialApp(
       title: 'Speech to Text',
       debugShowCheckedModeBanner: false,

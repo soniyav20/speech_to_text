@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:groq/groq.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -22,7 +23,7 @@ class _SpeechToTextPage extends State<SpeechToTextPage> {
 
   final List<Map<String, String>> _locales = [
     {"id": "en_US", "name": "English (US)"},
-    {"id": "en_GB", "name": "English (UK)"},
+    {"id": "en_IN", "name": "English (India)"},
     {"id": "ta_IN", "name": "Tamil (India)"},
     {"id": "hi_IN", "name": "Hindi (India)"},
   ];
@@ -55,7 +56,6 @@ class _SpeechToTextPage extends State<SpeechToTextPage> {
   void _startListening() async {
     await _speechToText.listen(
       onResult: _onSpeechResult,
-      listenFor: const Duration(seconds: 5000),
       localeId: _selectedLocale,
       cancelOnError: false,
       partialResults: false,
@@ -69,24 +69,25 @@ class _SpeechToTextPage extends State<SpeechToTextPage> {
     setState(() {});
   }
 
-
-
-
   void _onSpeechResult(SpeechRecognitionResult result) {
+    print('Listening: ${_speechToText.isListening}');
+    print('Recognized Words: ${result.recognizedWords}');
+    if (!_speechToText.isListening && _speechEnabled) {
+      print("AGATIN");
+      _startListening();
+    }
+
     setState(() async {
       _lastWords = " ${result.recognizedWords} ";
-      // transcripts.add(_lastWords);
-      print(transcripts);
       print("THIS IS FROM THE SPEECH" + _lastWords);
         final gemini = Gemini.instance;
-        print('Jdlfkjlsgj');
-        await gemini.text("This is a transcript from speech to text package i used, Check for context matching and add proper punctuation to the text. Return just the corrected text alone and nothing else. The text is \"${_lastWords}\"")
+        String pr="You are an AI language model tasked with reviewing a speech-to-text transcription for accuracy. Your job is to identify and correct only clear transcription errors, such as misspelled words, incorrect terms, or missing punctuation, while ensuring the text remains faithful to the original context and meaning. Do not alter the original wording, tone, or structure beyond correcting errors to maintain the integrity of the speaker's intent.";
+        await gemini.text("$pr+:\"${_lastWords}\"")
             .then((value) => transcripts.add(value?.output??"")) /// or value?.content?.parts?.last.text
             .catchError((e) => print(e));
         setState(() {
         });
-        print("Dgkjsgjlksdg");
-        print(transcripts);
+        print(transcripts[transcripts.length-1]);
     });
   }
 

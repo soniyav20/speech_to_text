@@ -36,6 +36,9 @@ dependencies:
   permission_handler: ^11.3.1
   speech_to_text: ^7.0.0
   flutter_gemini: ^2.0.5
+#  llama_cpp_dart: ^0.0.7
+  path_provider: ^2.1.5
+  groq: ^0.0.7
 
 
 dev_dependencies:
